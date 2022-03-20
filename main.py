@@ -5,8 +5,9 @@ from genetic import generate_genome
 # GLOBAL
 BITS_PER_NOTE = 3
 
+Genome = List[int]
 
-def genome_to_melody():
+def genome_to_melody(Genome):
     pass
 
 
