@@ -9,14 +9,13 @@ BPM = 120
 
 
 def note_from_bits(bits):  # bits : [0,1,1]
-    for index, bit in enumerate(bits):  # enumerate od bita : [(0,0),(1,1),(2,1)]
-        return sum(bit*pow(2, index))  # suma : wartość*2^index
+    return int(sum([bit*pow(2, index) for index, bit in enumerate(bits)]))
 
 
-def genome_to_melody(genome, num_notes, num_bars):
+def genome_to_melody(genome, num_notes: float, num_bars):
     notes = [genome[i * BITS_PER_NOTE:i * BITS_PER_NOTE + BITS_PER_NOTE] for i in range(num_notes * num_bars)]  # notes : slicing genomu w obszarze 3*n:3*n+3
     
-    note_length = 4 / num_notes  # długość każdej noty
+    note_length = 4 / float(num_notes)  # długość każdej noty
 
     melody = {
         "notes":  [],
@@ -25,9 +24,8 @@ def genome_to_melody(genome, num_notes, num_bars):
 
     for note in notes:
         index = note_from_bits(note)
-
-        melody["notes"] += [index]
-        melody["velocity"] += [127]
+        melody["notes"].append([index])
+        melody["velocity"].append(127)
 
     return melody
 
@@ -52,7 +50,7 @@ if __name__ == '__main__':
     s = Server().boot()
 
     genome = generate_genome(genome_len)
-    Melody = genome_to_melody(genome)
+    Melody = genome_to_melody(genome, 4, 4)
     Events = convert_melody_to_genome(Melody)
 
     for unit in Events:
