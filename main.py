@@ -3,22 +3,24 @@ from random import choices
 from genetic import generate_genome
 
 # GLOBAL
-BITS_PER_NOTE = 3 # liczba bitów do kodowania noty ; 2^3 = 8
+BITS_PER_NOTE = 3  # liczba bitów do kodowania noty ; 2^3 = 8
+genome_len = 3*8
 BPM = 120
-# Genome = List[int]
 
-def note_from_bits(bits): # bits : [0,1,1]
-    for index , bit in enumerate(bits): # enumerate od bita : [(0,0),(1,1),(2,1)]
-        return sum(bit*pow(2, index)) # suma : wartość*2^index
+
+def note_from_bits(bits):  # bits : [0,1,1]
+    for index, bit in enumerate(bits):  # enumerate od bita : [(0,0),(1,1),(2,1)]
+        return sum(bit*pow(2, index))  # suma : wartość*2^index
+
 
 def genome_to_melody(genome, num_notes, num_bars):
-    notes = [genome[i * BITS_PER_NOTE:i * BITS_PER_NOTE + BITS_PER_NOTE] for i in range(num_notes * num_bars)] # notes : slicing genomu w obszarze 3*n:3*n+3
+    notes = [genome[i * BITS_PER_NOTE:i * BITS_PER_NOTE + BITS_PER_NOTE] for i in range(num_notes * num_bars)]  # notes : slicing genomu w obszarze 3*n:3*n+3
     
-    note_lenght = 4 / num_notes # długość każdej noty
+    note_length = 4 / num_notes  # długość każdej noty
 
     melody = {
-        "notes" : [],
-        "velocity" : []
+        "notes":  [],
+        "velocity": []
     }
 
     for note in notes:
@@ -43,6 +45,7 @@ def convert_melody_to_genome(melody):
             release=0.005,
             bpm=BPM
         ))
+    return events
 
 
 if __name__ == '__main__':
@@ -50,8 +53,8 @@ if __name__ == '__main__':
 
     genome = generate_genome(genome_len)
     Melody = genome_to_melody(genome)
-    events = convert_melody_to_genome(Melody, BPM)
+    Events = convert_melody_to_genome(Melody)
 
-    for unit in events:
+    for unit in Events:
         unit.play()
     s.start()
