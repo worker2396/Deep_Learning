@@ -1,17 +1,17 @@
 from pyo import *
-from random import choices
 from genetic import generate_genome
 
 # GLOBAL
 BITS_PER_NOTE = 3
-
-Genome = List[int]
-
-def genome_to_melody(Genome):
-    pass
+BPM = 120  # placeholder
+genome_len = 4  # placeholder
 
 
-def play_melody_from_genome(melody, bpm):
+def genome_to_melody(genome):
+    return None
+
+
+def convert_melody_to_genome(melody, bpm):
     events = list()
     for step in melody["notes"]:
         events.append(Events(
@@ -24,10 +24,16 @@ def play_melody_from_genome(melody, bpm):
             release=0.005,
             bpm=bpm
         ))
-    for unit in events:
-        unit.play()
-    s.start()
+    return events
 
 
 if __name__ == '__main__':
-    pass
+    s = Server().boot()
+
+    genome = generate_genome(genome_len)
+    Melody = genome_to_melody(genome)
+    events = convert_melody_to_genome(Melody, BPM)
+
+    for unit in events:
+        unit.play()
+    s.start()
