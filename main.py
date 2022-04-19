@@ -5,7 +5,7 @@ from midiutil import MIDIFile
 from datetime import datetime
 
 # GLOBAL
-BITS_PER_NOTE = 3 # liczba bitów do kodowania noty ; 2^3 = 8
+BITS_PER_NOTE = 3  # liczba bitów do kodowania noty ; 2^3 = 8
 NUM_NOTES = 4
 NUM_BARS = 3
 BPM = 120
@@ -14,26 +14,26 @@ KEY = 'C'
 SCALE = 'major'
 ROOT = 4
 NUM_STEPS = 1
-# Genome = List[int]
 
-def note_from_bits(bits): # bits : [0,1,1] # enumerate od bita : [(0,0),(1,1),(2,1)]
-    return sum([bit*pow(2, index) for index, bit in enumerate(bits)]) # suma : wartość*2^index
+
+def note_from_bits(bits):  # bits : [0,1,1] # enumerate od bita : [(0,0),(1,1),(2,1)]
+    return sum([bit*pow(2, index) for index, bit in enumerate(bits)])  # suma: wartość*2^index
+
 
 def genome_to_melody(genome, num_notes, num_bars):
     notes = [genome[i * BITS_PER_NOTE:i * BITS_PER_NOTE + BITS_PER_NOTE] for i in range(num_notes * num_bars)] # notes : slicing genomu w obszarze 3*n:3*n+3
     
-    note_lenght = 4 / num_notes # długość każdej noty
+    note_length = 4 / num_notes  # długość każdej noty
 
     scl = EventScale(root=KEY, scale=SCALE, first=ROOT)
 
     melody = {
-        "notes" : [],
-        "velocity" : []
+        "notes": [],
+        "velocity": []
     }
 
     for note in notes:
         index = note_from_bits(note)
-
         melody["notes"].append(int(index)) 
         melody["velocity"] += [127]
 
@@ -45,14 +45,15 @@ def genome_to_melody(genome, num_notes, num_bars):
             step_index = int((note+step*2) % len(scl.data))
             current_data = scl.data[step_index]
             steps.append(current_data) 
-        #steps.append(list([(scl.data[int((note+step*2) % len(scl.data))] for note in melody["notes"])])) #krwmć
+        # steps.append(list([(scl.data[int((note+step*2) % len(scl.data))] for note in melody["notes"])])) #krwmć
                     
     melody["notes"] = [steps]
 
     return melody
 
-#jedna operacja - krzyżowanie, mutacja
-#zip = pdf + kod | opisać problemy
+# jedna operacja - krzyżowanie, mutacja
+# zip = pdf + kod | opisać problemy
+
 
 def convert_melody_to_genome(melody, bpm):
     events = list()
@@ -71,7 +72,7 @@ def convert_melody_to_genome(melody, bpm):
 
 
 def save_genome_to_midi(filename, Genome, NUM_BARS, NUM_NOTES, NUM_STEPS, key, scale, root, bpm):
-    melody = genome_to_melody(genome, NUM_BARS, NUM_NOTES, NUM_STEPS, key, scale, root)
+    melody = genome_to_melody(Genome, NUM_BARS, NUM_NOTES, NUM_STEPS, key, scale, root)
 
     if len(melody["notes"][0]) != len(melody["velocity"]):
         raise ValueError
@@ -99,18 +100,15 @@ def save_genome_to_midi(filename, Genome, NUM_BARS, NUM_NOTES, NUM_STEPS, key, s
 
 population_size = 3
 
-def main(): 
 
+def main():
     folder = str(int(datetime.now().timestamp()))
-
-    population = [generate_genome(num_bars * num_notes * BITS_PER_NOTE) for _ in range(population_size)]
-
+    population = [generate_genome(NUM_BARS * NUM_NOTES * BITS_PER_NOTE) for _ in range(population_size)]
     population_id = 0
-
     s = Server().boot()
 
     genome = generate_genome(genome_len)
-    Melody = genome_to_melody(genome, 4 , 4)
+    Melody = genome_to_melody(genome, 4, 4)
     events = convert_melody_to_genome(Melody, BPM)
 
     for unit in events:
@@ -120,7 +118,8 @@ def main():
 
     print("saving population midi …")
     for i, genome in enumerate(population):
-        save_genome_to_midi(f"{folder}/{population_id}/{scale}-{key}-{i}.mid", genome, num_bars, num_notes, num_steps, pauses, key, scale, root, bpm)
+        save_genome_to_midi(f"{folder}/{population_id}/{SCALE}-{KEY}-{i}.mid", genome, NUM_BARS, NUM_NOTES, NUM_STEPS,
+                            KEY, SCALE, ROOT, BPM)
     print("done")
 
     running = input("continue? [Y/n]") != "n"
@@ -128,5 +127,5 @@ def main():
     # population_id += 1
 
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()

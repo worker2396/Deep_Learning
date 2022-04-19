@@ -1,7 +1,7 @@
 from pyo import *
 import time
-#from random import choices
-#from genetic import generate_genome
+# from random import choices
+# from genetic import generate_genome
 
 
 def convert_melody_to_genome(melody):
@@ -10,7 +10,7 @@ def convert_melody_to_genome(melody):
         events.append(Events(
             midinote=EventSeq(step, occurrences=1),
             midivel=EventSeq(melody["velocity"], occurrences=1),
-            #beat=EventSeq(melody["beat"], occurrences=1),
+            # beat=EventSeq(melody["beat"], occurrences=1),
             # attack=0.001,
             # decay=0.05,
             # sustain=0.5,
@@ -19,16 +19,12 @@ def convert_melody_to_genome(melody):
         ))
     return events
 
+
 if __name__ == '__main__':
-
     melody = [[41, 36, 36, 32, 48, 48, 34, 38, 32, 32, 32, 32, 32, 32]]
-
     velocity = [127]*len(melody[0])
-
     beat = [1]*len(melody[0])
-
     s = Server().boot()
-
     events = list()
 
     for step in melody:
@@ -40,33 +36,11 @@ if __name__ == '__main__':
             decay=0.05,
             sustain=0.5,
             release=0.005,
-            bpm = 128
+            bpm=128
         ))
-
-    #print(events)
-
-    # genome = generate_genome(genome_len)
-    # Melody = genome_to_melody(genome)
 
     for unit in events:
         unit.play()
 
     s.start()
     time.sleep(10)
-    
-    # s.stop()
-
-    # for unit in events:
-    #     unit.stop()
-
-    # time.sleep(1)
-
-    # for e in events:
-    #     e.play()
-    # s.start()
-    # input("here is the second best …")
-    # s.stop()
-    # for e in events:
-    #     e.stop()
-
-    # time.sleep(1)
