@@ -67,13 +67,13 @@ def convert_melody_to_genome(melody, bpm):
             decay=0.05,
             sustain=0.5,
             release=0.005,
-            bpm=BPM
+            bpm=bpm
         ))
     return events
 
 
-def save_genome_to_midi(filename, genome, num_bars, num_notes, num_steps, key, scale, root, bpm):
-    melody = genome_to_melody(genome, num_notes, num_bars, key, scale, root)
+def save_genome_to_midi(filename, genome, bpm):
+    melody = genome_to_melody(genome, NUM_NOTES, NUM_BARS, KEY, SCALE, ROOT)
 
     if len(melody["notes"][0]) != len(melody["velocity"]):
         raise ValueError
@@ -102,30 +102,50 @@ def save_genome_to_midi(filename, genome, num_bars, num_notes, num_steps, key, s
 population_size = 3
 
 
+def fitness(genome, s, bpm: int) -> int:
+    melody = genome_to_melody(genome, NUM_NOTES, NUM_BARS, KEY, SCALE, ROOT)
+    events = convert_melody_to_genome(melody, bpm)
+    for e in events:
+        e.play()
+    s.start()
+
+    rating = input("Rating (0-5)")
+
+    for e in events:
+        e.stop()
+    s.stop()
+    time.sleep(1)
+
+    try:
+        rating = int(rating)
+    except ValueError:
+        rating = 0
+
+    return rating
+
+
 def main():
     folder = str(int(datetime.now().timestamp()))
     population = [generate_genome(NUM_BARS * NUM_NOTES * BITS_PER_NOTE) for _ in range(population_size)]
     population_id = 0
     s = Server().boot()
 
-    genome = generate_genome(genome_len)
-    melody = genome_to_melody(genome, NUM_NOTES, NUM_BARS, KEY, SCALE, ROOT)
-    events = convert_melody_to_genome(melody, BPM)
+    running = True
+    while running:
+        pop_fitness = list(dict() for _ in range(population_size))
+        print("saving population midi …")
+        for i, genome in enumerate(population):
+            pop_fitness[i] = {"genome": genome,
+                              "fitness": fitness(genome, s, BPM)}
 
-    for unit in events:
-        unit.play()
-    s.start()
-    time.sleep(20)
+        for i, unit in enumerate(pop_fitness):
+            save_genome_to_midi(f"{folder}/{population_id}/No-{i}_Grade-{unit['fitness']}.mid", unit["genome"], BPM)
 
-    print("saving population midi …")
-    for i, genome in enumerate(population):
-        save_genome_to_midi(f"{folder}/{population_id}/{SCALE}-{KEY}-{i}.mid", genome, NUM_BARS, NUM_NOTES, NUM_STEPS,
-                            KEY, SCALE, ROOT, BPM)
+        population_id += 1
+
+        running = input("continue? [Y/n]") != "n"
+
     print("done")
-
-    running = input("continue? [Y/n]") != "n"
-    # population = next_generation
-    # population_id += 1
 
 
 if __name__ == '__main__':
