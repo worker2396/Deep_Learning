@@ -20,22 +20,23 @@ def note_from_bits(bits):  # bits : [0,1,1] # enumerate od bita : [(0,0),(1,1),(
     return sum([bit*pow(2, index) for index, bit in enumerate(bits)])  # suma: wartość*2^index
 
 
-def genome_to_melody(genome, num_notes, num_bars):
-    notes = [genome[i * BITS_PER_NOTE:i * BITS_PER_NOTE + BITS_PER_NOTE] for i in range(num_notes * num_bars)] # notes : slicing genomu w obszarze 3*n:3*n+3
-    
+def genome_to_melody(genome, num_notes, num_bars, key, scale, root):
+    notes = [genome[i * BITS_PER_NOTE:i * BITS_PER_NOTE + BITS_PER_NOTE] for i in range(num_notes * num_bars)]
+    # notes : slicing genomu w obszarze 3*n:3*n+3
     note_length = 4 / num_notes  # długość każdej noty
-
-    scl = EventScale(root=KEY, scale=SCALE, first=ROOT)
+    scl = EventScale(root=key, scale=scale, first=root)
 
     melody = {
         "notes": [],
-        "velocity": []
+        "velocity": [],
+        "beat": []
     }
 
     for note in notes:
         index = note_from_bits(note)
-        melody["notes"].append(int(index)) 
+        melody["notes"].append(int(index))
         melody["velocity"] += [127]
+        melody["beat"] += [note_length]
 
     steps = []
 
@@ -71,8 +72,8 @@ def convert_melody_to_genome(melody, bpm):
     return events
 
 
-def save_genome_to_midi(filename, Genome, NUM_BARS, NUM_NOTES, NUM_STEPS, key, scale, root, bpm):
-    melody = genome_to_melody(Genome, NUM_BARS, NUM_NOTES, NUM_STEPS, key, scale, root)
+def save_genome_to_midi(filename, genome, num_bars, num_notes, num_steps, key, scale, root, bpm):
+    melody = genome_to_melody(genome, num_notes, num_bars, key, scale, root)
 
     if len(melody["notes"][0]) != len(melody["velocity"]):
         raise ValueError
@@ -108,8 +109,8 @@ def main():
     s = Server().boot()
 
     genome = generate_genome(genome_len)
-    Melody = genome_to_melody(genome, 4, 4)
-    events = convert_melody_to_genome(Melody, BPM)
+    melody = genome_to_melody(genome, NUM_NOTES, NUM_BARS, KEY, SCALE, ROOT)
+    events = convert_melody_to_genome(melody, BPM)
 
     for unit in events:
         unit.play()
