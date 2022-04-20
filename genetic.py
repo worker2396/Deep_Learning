@@ -23,5 +23,5 @@ def single_point_crossover(a: Genome, b: Genome) -> Tuple[Genome, Genome]:
         return a, b
 
     p = randint(1, length - 1)
-    return a[0:p] + b[p:], b[0:p] + a[p:]
+    return a[0:p] + b[p:]
 

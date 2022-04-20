@@ -148,8 +148,8 @@ def main():
 
 
         for i in range(len(sort_pop_fitness)-1):
-            a = sort_pop_fitness.get(i+1).get('genome')
-            b = sort_pop_fitness.get(0).get('genome')
+            a = sort_pop_fitness[i+1].get('genome')
+            b = sort_pop_fitness[0].get('genome')
             next_population.append(single_point_crossover(a, b))
             
         population = next_population
