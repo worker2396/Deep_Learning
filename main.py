@@ -1,8 +1,9 @@
 from pyo import *
 from random import choices
-from genetic import generate_genome
+from genetic import generate_genome, single_point_crossover
 from midiutil import MIDIFile
 from datetime import datetime
+from operator import itemgetter
 
 # GLOBAL
 BITS_PER_NOTE = 3  # liczba bitów do kodowania noty ; 2^3 = 8
@@ -138,13 +139,25 @@ def main():
             pop_fitness[i] = {"genome": genome,
                               "fitness": fitness(genome, s, BPM)}
 
-        for i, unit in enumerate(pop_fitness):
+        sort_pop_fitness = sorted(pop_fitness, key=itemgetter('fitness'), reverse=True)
+
+        for i, unit in enumerate(sort_pop_fitness):
             save_genome_to_midi(f"{folder}/{population_id}/No-{i}_Grade-{unit['fitness']}.mid", unit["genome"], BPM)
+        
+        next_population = [sort_pop_fitness[0]['genome']]
+
+
+        for i in range(len(sort_pop_fitness)-1):
+            a = sort_pop_fitness.get(i+1).get('genome')
+            b = sort_pop_fitness.get(0).get('genome')
+            next_population.append(single_point_crossover(a, b))
+            
+        population = next_population
 
         population_id += 1
 
         running = input("continue? [Y/n]") != "n"
-
+ 
     print("done")
 
 
